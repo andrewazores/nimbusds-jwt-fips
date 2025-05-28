@@ -4,7 +4,7 @@ ENV LANGUAGE='en_US:en'
 
 USER 0
 RUN export NSS_CFG=$JAVA_HOME/conf/security/nss.fips.cfg && \
-    echo 'attributes(*,CKO_SECRET_KEY,*)={ CKA_SIGN=true CKA_ENCRYPT=true }' >> $NSS_CFG
+    sed -i 's/attributes.*/attributes(*,CKO_SECRET_KEY,*)={ CKA_SIGN=true CKA_ENCRYPT=true }/' $NSS_CFG
 
 EXPOSE 8181
 USER 185
