@@ -78,7 +78,7 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-ARG FIPS="0"
+ARG FIPS="1"
 FROM registry.access.redhat.com/ubi9/openjdk-21:1.21 as BASE
 
 ENV LANGUAGE='en_US:en'

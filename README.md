@@ -2,7 +2,7 @@ Simple application using nimbusds-jose-jwt to generate a signed and symmetricall
 
 Intended to be used to verify that the JDK crypto primitives on the runner system are available and sufficient for this JWT workflow.
 
-1. `$ mvn clean package -Dquarkus.docker.additional-args='--build-arg=FIPS=1' # change 1 to 0 to disable FIPS patch`
+1. `$ mvn clean package -Dquarkus.docker.additional-args='--build-arg=FIPS=1' # change 1 to 0 to disable FIPS patch. This -D property can normally be left off, since FIPS=1 is the default.`
 2. `$ podman run --rm -it quay.io/andrewazores/nimbusds-jwt-fips:latest`
 3. Verify output looks like:
 ```
