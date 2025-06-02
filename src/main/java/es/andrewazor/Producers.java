@@ -12,6 +12,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Singleton;
+
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -20,7 +22,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class Producers {
 
     @Produces
-    @ApplicationScoped
+    @Singleton
     public SecretKey produceSecretKey(
             @ConfigProperty(name = "jwt.secret.algorithm") String alg,
             @ConfigProperty(name = "jwt.secret.keysize") int keysize) {
