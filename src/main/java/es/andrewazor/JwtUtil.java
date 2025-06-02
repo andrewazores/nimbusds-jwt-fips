@@ -1,14 +1,5 @@
 package es.andrewazor;
 
-import java.text.ParseException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -27,27 +18,40 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Produces;
+import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+@Produces
+@ApplicationScoped
 public class JwtUtil {
 
-    private final UUID issuer;
-    private final JWSSigner signer;
-    private final JWSVerifier verifier;
-    private final JWEEncrypter encrypter;
-    private final JWEDecrypter decrypter;
-    private final Algorithms algorithms;
+    private final UUID issuer = UUID.randomUUID();
+    @Inject JWSSigner signer;
+    @Inject JWSVerifier verifier;
+    @Inject JWEEncrypter encrypter;
+    @Inject JWEDecrypter decrypter;
+    @Inject Algorithms algorithms;
 
-    public JwtUtil(JWSSigner jwsSigner, JWSVerifier jwsVerifier, JWEEncrypter jweEncrypter, JWEDecrypter jWEDecrypter, Algorithms algorithms) {
-        this.issuer = UUID.randomUUID();
-        this.signer = jwsSigner;
-        this.verifier = jwsVerifier;
-        this.encrypter = jweEncrypter;
-        this.decrypter = jWEDecrypter;
-        this.algorithms = algorithms;
-    }
+    @ConfigProperty(name = "jwt.signature.algorithm")
+    String sigAlg;
 
-    public String createToken()
-            throws JOSEException {
+    @ConfigProperty(name = "jwt.encryption.algorithm")
+    String encAlg;
+
+    @ConfigProperty(name = "jwt.encryption.method")
+    String encMtd;
+
+    public String createToken() throws JOSEException {
         Date now = Date.from(Instant.now());
         Date expiry = Date.from(now.toInstant().plus(Duration.ofMinutes(1)));
         JWTClaimsSet claims =
@@ -94,15 +98,37 @@ public class JwtUtil {
                         .claim("claimA", "a-claim")
                         .build();
         Set<String> requiredClaimNames =
-                new HashSet<>(Set.of("iat", "iss", "aud", "sub",  "exp", "nbf", "claimA"));
+                new HashSet<>(Set.of("iat", "iss", "aud", "sub", "exp", "nbf", "claimA"));
         DefaultJWTClaimsVerifier<SecurityContext> verifier =
-                new DefaultJWTClaimsVerifier<>(issuer.toString(), exactMatchClaims, requiredClaimNames);
+                new DefaultJWTClaimsVerifier<>(
+                        issuer.toString(), exactMatchClaims, requiredClaimNames);
         verifier.setMaxClockSkew(5);
         verifier.verify(jwt.getJWTClaimsSet(), null);
 
         return jwt;
     }
 
-    record Algorithms(String signature, String encryption, String encryptionMethod) { }
+    static class Algorithms {
+        String signature;
+        String encryption;
+        String encryptionMethod;
 
+        public Algorithms(String signature, String encryption, String encryptionMethod) {
+            this.signature = signature;
+            this.encryption = encryption;
+            this.encryptionMethod = encryptionMethod;
+        }
+
+        public String signature() {
+            return signature;
+        }
+
+        public String encryption() {
+            return encryption;
+        }
+
+        public String encryptionMethod() {
+            return encryptionMethod;
+        }
+    }
 }
