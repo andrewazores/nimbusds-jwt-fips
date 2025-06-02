@@ -10,11 +10,17 @@ import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWT;
+
+import io.quarkus.runtime.Quarkus;
+import io.quarkus.runtime.QuarkusApplication;
+import io.quarkus.runtime.annotations.QuarkusMain;
+
 import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.JWEEncrypter;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 
+@QuarkusMain
 public class App {
 
     static final String JWT_SECRET_ALGORITHM = "AES";
@@ -24,6 +30,12 @@ public class App {
     static final String JWT_ENCRYPTION_METHOD = "A256GCM";
 
     public static void main(String[] args) throws Exception {
+        Quarkus.run(Launcher.class, args);
+    }
+
+    public static class Launcher implements QuarkusApplication {
+        @Override
+        public int run(String... args) throws Exception {
         KeyGenerator generator = KeyGenerator.getInstance(JWT_SECRET_ALGORITHM);
         generator.init(JWT_SECRET_KEYSIZE);
         SecretKey secretKey = generator.generateKey();
@@ -52,5 +64,7 @@ public class App {
                     jwt.getHeader().getAlgorithm(),
                     Collections.unmodifiableMap(jwt.getJWTClaimsSet().getClaims())
                     ));
+            return 0;
+        }
     }
 }

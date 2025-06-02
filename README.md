@@ -2,8 +2,8 @@ Simple application using nimbusds-jose-jwt to generate a signed and symmetricall
 
 Intended to be used to verify that the JDK crypto primitives on the runner system are available and sufficient for this JWT workflow.
 
-1. `$ mvn clean compile assembly:single`
-2. `$ java -jar target/nimbusds-jwt-fips-1.0-SNAPSHOT.jar`
+1. `$ mvn clean package -Dquarkus.docker.additional-args='--build-arg=FIPS=1' # change 1 to 0 to disable FIPS patch`
+2. `$ podman run --rm -it quay.io/andrewazores/nimbusds-jwt-fips:latest`
 3. Verify output looks like:
 ```
 Creating JWT with SECRET_ALGORITHM=AES SECRET_KEYSIZE=256 SIGNATURE_ALGORITHM=HS256 ENCRYPTION_ALGORITHM=dir ENCRYPTION_METHOD=A256GCM
